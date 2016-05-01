@@ -1,7 +1,9 @@
 import fnmatch
+import hashlib
 import os
 import sys
-import hashlib
+
+import sqlalchemy
 
 
 def find_files(directory, pattern):
@@ -21,13 +23,26 @@ def get_md5_hash(filename):
             buf = afile.read(BLOCKSIZE)
     return hasher.hexdigest()
 
-def process(filename):
-    try:
-        print("match %s" % filename)
-        print("hash %s" % get_md5_hash(filename))
-    except Exception:
-        pass
+def main():
+    from db.models import Base, Document
+    from sqlalchemy import create_engine
+    engine = create_engine('sqlite:///:memory:', echo=True)
+    Base.metadata.create_all(engine)
+    
+    from sqlalchemy.orm import sessionmaker
+    Session = sessionmaker(bind=engine)
+    
+    for filename in find_files(sys.argv[1], sys.argv[2]):    
+        dbsession = Session()
+        try:
+            hash = get_md5_hash(filename)
+            doc = Document(filepath=filename, hash=hash)
+            dbsession.add(doc)
+            dbsession.commit()
+        except Exception:
+            dbsession.rollback()
+        finally:
+            dbsession.close()
 
 if __name__ == '__main__':
-    for filename in find_files(sys.argv[1], sys.argv[2]):
-        process(filename)
+    main()

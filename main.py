@@ -42,6 +42,7 @@ def populate_database(Session, Extractor):
             
             elif existing.hash != hash:
                 existing.hash = hash
+                existing.body = contents
             
             dbsession.commit()
         except Exception:

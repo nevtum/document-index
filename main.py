@@ -91,7 +91,7 @@ def main():
     from sqlalchemy.orm import sessionmaker
     Session = sessionmaker(bind=engine)
     
-    # populate_database(Session, TextExtractor)
+    populate_database(Session, TextExtractor)
     build_index(Session)
     query_index()
  

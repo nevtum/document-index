@@ -27,16 +27,22 @@ def get_md5_hash(filename):
 
 def calculate_hash(filename):
     return get_md5_hash(filename)
-    
-def get_contents(filename):
-    return ""
 
-def populate_database(Session):
-    for filename in find_files(sys.argv[1], sys.argv[2]):    
+class ConcreteExtractor:
+    @staticmethod
+    def extension_filter():
+        return "*.txt"
+
+    @staticmethod
+    def get_contents(filename):
+        return ""
+    
+def populate_database(Session, Extractor):
+    for filename in find_files(sys.argv[1], Extractor.extension_filter()):    
         dbsession = Session()
         try:
             hash = calculate_hash(filename)
-            contents = get_contents(filename)
+            contents = Extractor.get_contents(filename)
             existing = dbsession.query(Document).filter_by(filepath=filename).first()
             if existing is None:
                 doc = Document(filepath=filename, body=contents, hash=hash)
@@ -72,7 +78,7 @@ def main():
     from sqlalchemy.orm import sessionmaker
     Session = sessionmaker(bind=engine)
     
-    populate_database(Session)
+    populate_database(Session, ConcreteExtractor)
     query_database(Session)
  
 if __name__ == '__main__':

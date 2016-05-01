@@ -3,7 +3,9 @@ import hashlib
 import os
 import sys
 
-import sqlalchemy
+from sqlalchemy import create_engine
+
+from db.models import Base, Document
 
 
 def find_files(directory, pattern):
@@ -23,15 +25,7 @@ def get_md5_hash(filename):
             buf = afile.read(BLOCKSIZE)
     return hasher.hexdigest()
 
-def main():
-    from db.models import Base, Document
-    from sqlalchemy import create_engine
-    engine = create_engine('sqlite:///data.sqlite', echo=True)
-    Base.metadata.create_all(engine)
-    
-    from sqlalchemy.orm import sessionmaker
-    Session = sessionmaker(bind=engine)
-    
+def populate_database(Session):
     for filename in find_files(sys.argv[1], sys.argv[2]):    
         dbsession = Session()
         try:
@@ -50,5 +44,29 @@ def main():
         finally:
             dbsession.close()
 
+def query_database(Session):
+    while True:
+        indata = input("Enter query: ")
+        
+        dbsession = Session()
+        queryset = dbsession.query(Document).filter(Document.filepath.contains(indata))
+        
+        for item in queryset.all():
+            print(item)
+        
+        print("{} items found".format(queryset.count()))
+        
+        dbsession.close()
+
+def main():
+    engine = create_engine('sqlite:///data.sqlite', echo=True)
+    Base.metadata.create_all(engine)
+    
+    from sqlalchemy.orm import sessionmaker
+    Session = sessionmaker(bind=engine)
+    
+    populate_database(Session)
+    # query_database(Session)
+ 
 if __name__ == '__main__':
     main()

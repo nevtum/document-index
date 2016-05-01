@@ -9,3 +9,6 @@ class Document(Base):
     id = Column(Integer, primary_key=True)
     filepath = Column(String)
     hash = Column(String(100))
+    
+    def __str__(self):
+        return "<Document id={}>".format(self.id, self.hash)

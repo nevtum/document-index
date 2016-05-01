@@ -28,14 +28,15 @@ def get_md5_hash(filename):
 def calculate_hash(filename):
     return get_md5_hash(filename)
 
-class ConcreteExtractor:
+class TextExtractor:
     @staticmethod
     def extension_filter():
         return "*.txt"
 
     @staticmethod
     def get_contents(filename):
-        return ""
+        with open(filename, 'rb') as stream:
+            return stream.read()
     
 def populate_database(Session, Extractor):
     for filename in find_files(sys.argv[1], Extractor.extension_filter()):    
@@ -78,7 +79,7 @@ def main():
     from sqlalchemy.orm import sessionmaker
     Session = sessionmaker(bind=engine)
     
-    populate_database(Session, ConcreteExtractor)
+    populate_database(Session, TextExtractor)
     query_database(Session)
  
 if __name__ == '__main__':

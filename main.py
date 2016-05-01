@@ -7,6 +7,8 @@ from sqlalchemy import create_engine
 
 from db.models import Base, Document
 from extractors import TextExtractor
+from whoosh.fields import *
+from whoosh.index import create_in
 
 
 def find_files(directory, pattern):
@@ -50,6 +52,19 @@ def populate_database(Session, Extractor):
         finally:
             dbsession.close()
 
+def build_index(Session):
+    schema = Schema(path=ID(stored=True), content=TEXT)
+    ix = create_in("indexdir", schema)
+    writer = ix.writer()
+    
+    dbsession = Session()
+    queryset = dbsession.query(Document)
+
+    for item in queryset.all():
+        writer.add_document(path=item.filepath, content=item.body)
+
+    dbsession.close()
+
 def query_database(Session):
     while True:
         indata = input("Enter query: ")
@@ -71,7 +86,8 @@ def main():
     from sqlalchemy.orm import sessionmaker
     Session = sessionmaker(bind=engine)
     
-    populate_database(Session, TextExtractor)
+    # populate_database(Session, TextExtractor)
+    build_index(Session)
     query_database(Session)
  
 if __name__ == '__main__':

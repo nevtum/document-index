@@ -8,6 +8,7 @@ class Document(Base):
 
     id = Column(Integer, primary_key=True)
     filepath = Column(String)
+    body = Column(String)
     hash = Column(String(100))
     
     def __str__(self):

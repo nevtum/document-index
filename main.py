@@ -25,14 +25,21 @@ def get_md5_hash(filename):
             buf = afile.read(BLOCKSIZE)
     return hasher.hexdigest()
 
+def calculate_hash(filename):
+    return get_md5_hash(filename)
+    
+def get_contents(filename):
+    return ""
+
 def populate_database(Session):
     for filename in find_files(sys.argv[1], sys.argv[2]):    
         dbsession = Session()
         try:
-            hash = get_md5_hash(filename)
+            hash = calculate_hash(filename)
+            contents = get_contents(filename)
             existing = dbsession.query(Document).filter_by(filepath=filename).first()
             if existing is None:
-                doc = Document(filepath=filename, hash=hash)
+                doc = Document(filepath=filename, body=contents, hash=hash)
                 dbsession.add(doc)
             
             elif existing.hash != hash:
@@ -66,7 +73,7 @@ def main():
     Session = sessionmaker(bind=engine)
     
     populate_database(Session)
-    # query_database(Session)
+    query_database(Session)
  
 if __name__ == '__main__':
     main()

@@ -54,7 +54,7 @@ def populate_database(Session, Extractor):
             dbsession.close()
 
 def build_index(Session):
-    schema = Schema(path=ID(stored=True), content=TEXT)
+    schema = Schema(path=ID(stored=True), content=NGRAM)
     
     if not os.path.exists("indexdir"):
         os.mkdir("indexdir")
@@ -64,11 +64,12 @@ def build_index(Session):
     
     dbsession = Session()
     queryset = dbsession.query(Document)
-    dbsession.close()
 
     for item in queryset.all():
         writer.add_document(path=item.filepath, content=str(item.body))
 
+    writer.commit()
+    dbsession.close()
 
 def query_index():
     ix = open_dir("indexdir")
@@ -80,22 +81,8 @@ def query_index():
             query = QueryParser("content", ix.schema).parse(indata)
             results = searcher.search(query)
             
-            for item in results:
-                print(item)
-
-def query_database(Session):
-    while True:
-        indata = input("Enter query: ")
-        
-        dbsession = Session()
-        queryset = dbsession.query(Document).filter(Document.filepath.contains(indata))
-        
-        for item in queryset.all():
-            print(item)
-        
-        print("{} items found".format(queryset.count()))
-        
-        dbsession.close()
+            for item in results[:10]:
+                print(item['path'])
 
 def main():
     engine = create_engine('sqlite:///data.sqlite', echo=True)
@@ -106,7 +93,6 @@ def main():
     
     # populate_database(Session, TextExtractor)
     build_index(Session)
-    # query_database(Session)
     query_index()
  
 if __name__ == '__main__':

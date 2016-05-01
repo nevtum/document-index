@@ -61,7 +61,10 @@ def build_index(Session):
     queryset = dbsession.query(Document)
 
     for item in queryset.all():
-        writer.add_document(path=item.filepath, content=item.body)
+        try:
+            writer.add_document(path=item.filepath, content=item.body)
+        except Exception:
+            print("failed updating index!")
 
     dbsession.close()
 

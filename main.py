@@ -6,6 +6,7 @@ import sys
 from sqlalchemy import create_engine
 
 from db.models import Base, Document
+from extractors import TextExtractor
 
 
 def find_files(directory, pattern):
@@ -27,16 +28,6 @@ def get_md5_hash(filename):
 
 def calculate_hash(filename):
     return get_md5_hash(filename)
-
-class TextExtractor:
-    @staticmethod
-    def extension_filter():
-        return "*.txt"
-
-    @staticmethod
-    def get_contents(filename):
-        with open(filename, 'rb') as stream:
-            return stream.read()
     
 def populate_database(Session, Extractor):
     for filename in find_files(sys.argv[1], Extractor.extension_filter()):    

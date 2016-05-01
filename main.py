@@ -8,7 +8,8 @@ from sqlalchemy import create_engine
 from db.models import Base, Document
 from extractors import TextExtractor
 from whoosh.fields import *
-from whoosh.index import create_in
+from whoosh.index import create_in, open_dir
+from whoosh.qparser import QueryParser
 
 
 def find_files(directory, pattern):
@@ -54,19 +55,33 @@ def populate_database(Session, Extractor):
 
 def build_index(Session):
     schema = Schema(path=ID(stored=True), content=TEXT)
+    
+    if not os.path.exists("indexdir"):
+        os.mkdir("indexdir")
+    
     ix = create_in("indexdir", schema)
     writer = ix.writer()
     
     dbsession = Session()
     queryset = dbsession.query(Document)
+    dbsession.close()
 
     for item in queryset.all():
-        try:
-            writer.add_document(path=item.filepath, content=item.body)
-        except Exception:
-            print("failed updating index!")
+        writer.add_document(path=item.filepath, content=str(item.body))
 
-    dbsession.close()
+
+def query_index():
+    ix = open_dir("indexdir")
+    
+    while True:
+        indata = input("Enter query: ")
+        
+        with ix.searcher() as searcher:
+            query = QueryParser("content", ix.schema).parse(indata)
+            results = searcher.search(query)
+            
+            for item in results:
+                print(item)
 
 def query_database(Session):
     while True:
@@ -91,7 +106,8 @@ def main():
     
     # populate_database(Session, TextExtractor)
     build_index(Session)
-    query_database(Session)
+    # query_database(Session)
+    query_index()
  
 if __name__ == '__main__':
     main()

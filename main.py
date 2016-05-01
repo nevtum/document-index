@@ -26,7 +26,7 @@ def get_md5_hash(filename):
 def main():
     from db.models import Base, Document
     from sqlalchemy import create_engine
-    engine = create_engine('sqlite:///:memory:', echo=True)
+    engine = create_engine('sqlite:///data.sqlite', echo=True)
     Base.metadata.create_all(engine)
     
     from sqlalchemy.orm import sessionmaker
@@ -36,8 +36,14 @@ def main():
         dbsession = Session()
         try:
             hash = get_md5_hash(filename)
-            doc = Document(filepath=filename, hash=hash)
-            dbsession.add(doc)
+            existing = dbsession.query(Document).filter_by(filepath=filename).first()
+            if existing is None:
+                doc = Document(filepath=filename, hash=hash)
+                dbsession.add(doc)
+            
+            elif existing.hash != hash:
+                existing.hash = hash
+            
             dbsession.commit()
         except Exception:
             dbsession.rollback()

@@ -32,8 +32,8 @@ def get_md5_hash(filename):
 def calculate_hash(filename):
     return get_md5_hash(filename)
     
-def populate_database(Session, Extractor):
-    for filename in find_files(sys.argv[1], Extractor.extension_filter()):    
+def populate_database(Session, Extractor, filepath):
+    for filename in find_files(filepath, Extractor.extension_filter()):    
         dbsession = Session()
         try:
             hash = calculate_hash(filename)
@@ -91,7 +91,8 @@ def main():
     from sqlalchemy.orm import sessionmaker
     Session = sessionmaker(bind=engine)
     
-    populate_database(Session, TextExtractor)
+    filepath = sys.argv[1]
+    populate_database(Session, TextExtractor, filepath)
     build_index(Session)
     query_index()
  

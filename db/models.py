@@ -7,6 +7,7 @@ class Document(Base):
     __tablename__ = 'document'
 
     id = Column(Integer, primary_key=True)
+    filename = Column(String)
     filepath = Column(String)
     body = Column(String)
     hash = Column(String(100))

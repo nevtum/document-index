@@ -21,13 +21,22 @@ def query_index():
             results = searcher.search(query)
             
             for item in results[:10]:
-                print(item['path'])
+                print(item['filename'])
+                # print(item['path'])
+
+from utils import find_files
+
+# def test_find_files(root_dir):
+#     for fq_path, root, basename in find_files(root_dir, '\.py$'):
+#         print(fq_path)
 
 def main():
     root_dir = sys.argv[1]
     builder = DocIndexBuilder()
     builder.run(root_dir)
     query_index()
+
+    # test_find_files(root_dir)
  
 if __name__ == '__main__':
     main()

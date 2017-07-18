@@ -23,13 +23,20 @@ class IndexBuilder(object):
         Session = sessionmaker(bind=engine)
         self._populate_database(Session, filepath)
         self._build_index(Session)
+        self._create_regex()
     
-    def get_contents(filename):
+    def get_contents(self, filename):
         with open(filename, 'rb') as stream:
             return stream.read()
     
+    def _create_regex(self):
+        regex = map(lambda s: "\.{}$".format(s), self.extension_list)
+        regex = "|".join([r for r in regex])
+        regex = "({})".format(regex)
+        return regex
+    
     def _populate_database(self, Session, filepath):
-        for filename in find_files(filepath, self.extension_list):    
+        for filename in find_files(filepath, self._create_regex()):    
             dbsession = Session()
             try:
                 hash = calculate_hash(filename)

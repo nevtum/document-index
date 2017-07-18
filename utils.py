@@ -1,12 +1,21 @@
 import fnmatch
 import hashlib
 import os
+import re
 
-def find_files(directory, pattern):
+# def find_files(directory, pattern):
+#     for root, dirs, files in os.walk(directory):
+#         for basename in files:
+#             if fnmatch.fnmatch(basename, pattern):
+#                 filename = os.path.join(root, basename)
+#                 yield filename
+
+def find_files(directory, regex):
     for root, dirs, files in os.walk(directory):
         for basename in files:
-            if fnmatch.fnmatch(basename, pattern):
+            if re.search(regex, basename):
                 filename = os.path.join(root, basename)
+                print(filename)
                 yield filename
 
 def _get_md5_hash(filename):

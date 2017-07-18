@@ -6,7 +6,7 @@ from whoosh.qparser import QueryParser
 from index_builder import IndexBuilder
 
 class DocIndexBuilder(IndexBuilder):
-    extension_list = "*.doc"
+    extension_list = ('doc', 'docx')
     index_directory = 'indexdir'
 
     def get_contents(self, filename):

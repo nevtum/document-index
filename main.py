@@ -1,16 +1,11 @@
 import sys
 
-from whoosh.fields import *
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser
-from index_builder import IndexBuilder
 
-class DocIndexBuilder(IndexBuilder):
-    extension_list = ('doc', 'docx')
-    index_directory = 'indexdir'
+from index_builders import PDFIndexBuilder
+from utils import find_files
 
-    def get_contents(self, filename):
-        return super(DocIndexBuilder, self).get_contents(filename)
 
 def query_index():
     ix = open_dir("indexdir")
@@ -24,7 +19,6 @@ def query_index():
                 print(item['filename'])
                 # print(item['path'])
 
-from utils import find_files
 
 # def test_find_files(root_dir):
 #     for fq_path, root, basename in find_files(root_dir, '\.py$'):
@@ -32,7 +26,7 @@ from utils import find_files
 
 def main():
     root_dir = sys.argv[1]
-    builder = DocIndexBuilder()
+    builder = PDFIndexBuilder()
     builder.run(root_dir)
     query_index()
 

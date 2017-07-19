@@ -9,7 +9,7 @@ from whoosh.qparser import QueryParser
 from db.models import Base, Document
 from utils import find_files, calculate_hash
 
-class IndexBuilder(object):
+class BaseIndexBuilder(object):
     def run(self, filepath):
         if not self.index_directory:
             raise Exception("Imppoperyly configured 'index_directory'")
@@ -85,3 +85,21 @@ class IndexBuilder(object):
 
         writer.commit()
         dbsession.close()
+
+from textract import process
+
+class DocIndexBuilder(BaseIndexBuilder):
+    extension_list = ('doc', 'docx')
+    index_directory = 'indexdir'
+
+    def get_contents(self, filename):
+        text = process(filename)
+        return text
+
+class PDFIndexBuilder(BaseIndexBuilder):
+    extension_list = ('pdf',)
+    index_directory = 'indexdir'
+
+    def get_contents(self, filename):
+        text = process(filename)
+        return text

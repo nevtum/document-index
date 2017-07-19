@@ -1,2 +1,3 @@
 whoosh
 sqlalchemy
+textract==1.5.0

@@ -9,3 +9,7 @@ install python pip, and enter the following to install and run application:
 
     $pip install -r requirements.txt
     $python main.py <root_dir>
+
+To run the Flask client, enter the following:
+
+    $python app.py

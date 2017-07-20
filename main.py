@@ -1,7 +1,7 @@
 import sys
 
-from whoosh.index import open_dir
-from whoosh.qparser import QueryParser
+from index_builders import PDFIndexBuilder
+
 
 def main():
     root_dir = sys.argv[1]

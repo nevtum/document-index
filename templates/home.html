@@ -1,5 +1,67 @@
 <html>
     <body>
-        <h1>Flask</h1>
+        <h1>Document search engine</h1>
+        <div id="root"></div>
     </body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="static/styles.css" rel="stylesheet">
+    <script type="text/babel">
+    class Root extends React.Component {
+        constructor(context, props) {
+            super(context, props)
+
+            this.state = {
+                keyword: "",
+                matches: [
+                    {filename: "test", score: 4.24},
+                    {filename: "test", score: 4.24}
+                ]
+            }
+
+            this.onChange = this.onChange.bind(this);
+        }
+
+        onChange(e) {
+            e.preventDefault();
+
+            const keyword = e.target.value;
+            this.setState({ keyword });
+
+            fetch('http://localhost:5000/search/?q=' + keyword, {
+                method: 'get'
+            }).then(function(response) {
+                return response.json();
+            }).then(function(response) {
+                this.setState({ matches: response });
+                console.log(response);
+            }).catch(function(err) {
+                console.log("Failed!");
+                // this.setState({ matches: [] });
+            });
+        }
+
+        render() {
+            return (
+                <div>
+                    <input type="text"
+                        value={this.state.keyword}
+                        onChange={this.onChange}/>
+                    <ul>
+                        {this.state.matches.map(function(item, i) {
+                            return (<li key={i}>{item.filename}</li>);
+                        })}
+                    </ul>
+                    <pre>{JSON.stringify(this.state, null, 2)}</pre>
+                </div>
+            );
+        }
+    }
+    ReactDOM.render(
+        <Root />,
+        document.getElementById('root')
+    );
+    </script>
 </html>

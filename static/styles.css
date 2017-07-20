@@ -1,3 +1,15 @@
 body {
     font-family: Roboto;
 }
+
+.score {
+    color: #7b87d9;
+    font-size: 0.85rem;
+}
+
+input {
+    height: 28px;
+    margin-left: 20px;
+    padding-left: 4px;
+    width: 300px;
+}

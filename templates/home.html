@@ -1,6 +1,6 @@
 <html>
     <body>
-        <h1>Document search engine</h1>
+        <h1>Document search utility</h1>
         <div id="root"></div>
     </body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.js"></script>
@@ -15,10 +15,7 @@
 
             this.state = {
                 keyword: "",
-                matches: [
-                    {filename: "test", score: 4.24},
-                    {filename: "test", score: 4.24}
-                ]
+                matches: []
             }
 
             this.onChange = this.onChange.bind(this);
@@ -30,16 +27,18 @@
             const keyword = e.target.value;
             this.setState({ keyword });
 
-            fetch('http://localhost:5000/search/?q=' + keyword, {
+            if (keyword.length <= 3) {
+                this.setState({ matches: [] });
+            }
+
+            fetch('/search/?q=' + keyword, {
                 method: 'get'
-            }).then(function(response) {
+            }).then((response) => {
                 return response.json();
-            }).then(function(response) {
+            }).then((response) => {
                 this.setState({ matches: response });
-                console.log(response);
-            }).catch(function(err) {
-                console.log("Failed!");
-                // this.setState({ matches: [] });
+            }).catch((err) => {
+                console.log(err);
             });
         }
 
@@ -51,14 +50,19 @@
                         onChange={this.onChange}/>
                     <ul>
                         {this.state.matches.map(function(item, i) {
-                            return (<li key={i}>{item.filename}</li>);
+                            return (
+                                <li key={i}>
+                                    <span className="score">({item.score.toFixed(6)}) </span>
+                                    <span className="path">{item.path}</span>
+                                </li>
+                            );
                         })}
                     </ul>
-                    <pre>{JSON.stringify(this.state, null, 2)}</pre>
                 </div>
             );
         }
     }
+
     ReactDOM.render(
         <Root />,
         document.getElementById('root')
